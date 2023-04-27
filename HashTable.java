@@ -90,21 +90,32 @@ public class HashTable<K, V> {
    * Double the size of the hash table and rehash all existing items.
    */
   private void resize() {
-    Item[] newTable = new HashTable.Item[table.length * 2];
-
-    for (int i = 0; i < table.length; i++) {
-      Item item = table[i];
-      if (!item.isDeleted() && item != null) {
-        int newIndex = indexFor(item.key.hashCode(), newTable.length);
-        while (newTable[newIndex] != null) {
-          newIndex = (newIndex + 1) % newTable.length;
-        }
-        newTable[newIndex] = item;
+    Item[] oldTable = table;
+    table = new HashTable.Item[(table.length * 2)];
+    for (Item item : oldTable) {
+      if (item == null ||  item.isDeleted()) {
+        continue;
       }
+      putResize(item);
     }
-
-    table = newTable;
   }
+
+  private void putResize(Item item) {
+    int index = indexFor(item.key().hashCode(), table.length);
+
+    if (table[index] != null) {
+      while (true) {
+        index = (index + 1) % table.length;
+        if (table[index] != null) {
+          table[index] = item;
+          return;
+        }
+      }
+    } else {
+      table[index] = item;
+    }
+  }
+
 
 
   /**
@@ -118,7 +129,11 @@ public class HashTable<K, V> {
       if (item == null) {
         return -1;
       } else if (item.key().equals(key)) {
-        return index;
+        if (!item.isDeleted()) {
+          return index;
+        } else {
+          return -1;
+        }
       }
       index = (index + 1) % table.length;
     }
