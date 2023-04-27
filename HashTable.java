@@ -108,6 +108,7 @@ public class HashTable<K, V> {
         index = (index + 1) % table.length;
         if (table[index] != null) {
           table[index] = item;
+          return;
         }
       }
     } else {
