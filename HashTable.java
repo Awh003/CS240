@@ -25,7 +25,7 @@ public class HashTable<K, V> {
    * Store the provided key/value pair.
    */
   public void put(K key, V value) {
-    if (size > MAX_LOAD * table.length) {
+    if (size + 1 > MAX_LOAD * table.length) {
       resize();
     }
     int index = findKey(key);
@@ -40,15 +40,9 @@ public class HashTable<K, V> {
       if (currItem == null) {
         table[index] = new Item(key, value);;
         size++;
-        if (size > MAX_LOAD * table.length) {
-          resize();
-        }
         return;
       } else if (currItem.isDeleted()) {
         table[index].setValue(value);
-        if (size > MAX_LOAD * table.length) {
-          resize();
-        }
         return;
       }
       index = (index + 1) % table.length;
@@ -111,7 +105,7 @@ public class HashTable<K, V> {
 
     if (table[index] != null) {
       while (true) {
-        index = index + 1 % table.length;
+        index = (index + 1) % table.length;
         if (table[index] != null) {
           table[index] = item;
         }
